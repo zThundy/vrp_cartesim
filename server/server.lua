@@ -37,9 +37,9 @@ end
 
 function vRP.clearAllInfoSim(user_id, numero)
 	if user_id ~= nil and numero ~= nil then
-		local result = MySQL.Sync.fetchAll("SELECT * FROM phone_messages WHERE reciver = @reciver", {['reciver'] = numero})
+		local result = MySQL.Sync.fetchAll("SELECT * FROM phone_messages WHERE receiver = @receiver", {['receiver'] = numero})
 		if #result > 0 and result ~= nil then
-			MySQL.Sync.fetchAll("DELETE FROM phone_messages WHERE reciver = @reciver", {['reciver'] = numero})
+			MySQL.Sync.fetchAll("DELETE FROM phone_messages WHERE receiver = @receiver", {['receiver'] = numero})
 		end
 	end
 end
