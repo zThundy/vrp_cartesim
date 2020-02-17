@@ -1,6 +1,6 @@
---vMySQL = module("vrp_mysql", "MySQL")
+vMySQL = module("vrp_mysql", "MySQL")
 
---vMySQL.createCommand("vRP/delete_sim", "DELETE FROM vrp_sim WHERE numero = @numero AND user_id = @user_id")
+vMySQL.createCommand("vRP/delete_sim", "DELETE FROM vrp_sim WHERE numero = @numero AND user_id = @user_id")
 
 local function getPhoneRandomNumber()
 	return math.random(55500000,55599999)
@@ -105,7 +105,6 @@ vRP.registerMenuBuilder({"main", function(add, data)
 					if user_id ~= nil and result[1].numero ~= nil then
 						MySQL.Sync.execute("UPDATE vrp_user_identities SET phone = @phone WHERE user_id = @user_id", {['phone'] = result[1].numero, ['user_id'] = user_id})
 						vRPclient.notify(player, {"~w~Numero aggiornato a ~g~"..tostring(result[1].numero)})
-						print(result[1].numero)
 						vRP.closeMenu({player})
 						TriggerClientEvent("gcPhone:myPhoneNumber", player, result[1].numero)
 						TriggerClientEvent("gcPhone:allMessage", player, getMessaggi(result[1].numero))
@@ -118,8 +117,8 @@ vRP.registerMenuBuilder({"main", function(add, data)
 						vRP.closeMenu({player})
 						local tempNum = result[1].numero
 						local tempResult = MySQL.Sync.fetchAll("SELECT * FROM vrp_user_identities WHERE user_id = @user_id", {['user_id'] = user_id})
-						MySQL.Sync.execute("DELETE FROM vrp_sim WHERE user_id = @user_id AND numero = @numero", {['@numero'] = result[1].number, ['@user_id'] = user_id})
-						--vMySQL.execute("vRP/delete_sim", {numero = tonumber(result[1].numero), user_id = user_id})
+						--MySQL.Sync.execute("DELETE FROM vrp_sim WHERE user_id = @user_id AND numero = @numero", {['@numero'] = result[1].number, ['@user_id'] = user_id})
+						vMySQL.execute("vRP/delete_sim", {numero = tonumber(result[1].numero), user_id = user_id})
 						if result[1].numero == tempResult[1].phone then
 							MySQL.Sync.execute("UPDATE vrp_user_identities SET phone = @phone WHERE user_id = @user_id", {['phone'] = 0, ['user_id'] = user_id})
 						end
@@ -135,3 +134,11 @@ vRP.registerMenuBuilder({"main", function(add, data)
 		add(choices)
     end
 end})
+
+AddEventHandler("vRP:playerSpawn", function(user_id, source, first_spawn)
+	if user_id ~= nil and source ~= nil then
+		local result = MySQL.Sync.fetchAll("SELECT * FROM vrp_user_identities WHERE user_id = @user_id", {['user_id'] = user_id})
+		TriggerClientEvent("gcPhone:myPhoneNumber", source, result[1].phone)
+		TriggerClientEvent("gcPhone:allMessage", source, getMessaggi(result[1].phone))
+	end
+end)
